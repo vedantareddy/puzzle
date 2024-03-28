@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-C">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Puzzle 2.0</title>
+
+  <!-- <script>
+  // Check if the user agent is a mobile device
+  if (/Mobi/.test(navigator.userAgent)) {
+    // Reload the page with a modified user agent string
+    window.location.href = window.location.href + "?desktop=true";
+  }
+</script> -->
+
+</head>
+<body>
+  
+  
+
+  <label for="ROWS">Enter no. of Rows : </label>
+  <input type="number" id="ROWS" placeholder="e.g. 10 ">
+
+	<label for="COLUMNS">Enter no. of Columns : </label>
+	<input type="number" id="COLUMNS" placeholder="e.g. 8"><br><br>
+
+  <button id="enter">Enter</button>
+
+<div id="imageContainer"></div>
+ 
+
+  <script>
+
+    let body=document.body;
+    let enterBtn=document.getElementById("enter");
+    
+    let R=document.getElementById("ROWS");
+    let C=document.getElementById("COLUMNS");
+    const deviceWidth = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+        const deviceHeight = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+    let n1=deviceWidth,n2=deviceHeight;
+    let w,h;
+
+    let won=false;
+    var ix = null;
+    var iy = null;
+    var start=0;
+    var currx=0 , curry=0;
+
+    let gotImage=false;
+
+    var backs=[];
+
+
+    function round(x){
+      let a=Math.round(x * 100) / 100;
+      return a;
+      }
+
+      function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+
+          if(i==1){
+              for(let k=1;k<=R*C;k++){
+                  document.getElementById("b"+k).style.backgroundPosition=arr[k-1];
+              }
+          }
+        }
+      // console.log(arr);
+      }
+
+      function gameover(){
+  if(won) return;
+  var cx=0,cy=0;
+  for(var i=1;i<=R*C;i++){
+    if(i%C==1 && i>1) {
+        cy+=100/(R-1);
+        cx=0;
+    }
+    let ocx=document.getElementById("b"+i).style.backgroundPositionX,
+    ocy=document.getElementById("b"+i).style.backgroundPositionY;
+    //console.log("i=",i, " ocx=",ocx, " cx=",round(cx), " ocy=",ocy, " cy=",round(cy))
+
+    let p=""+cx,q=""+cy;
+    if(round(cx)+"%" != ocx || round(cy)+"%" != ocy){
+      // console.log("cx=",cx, " cy=",cy, "  x=",document.getElementById("b"+i).style.backgroundPositionX, " y=",document.getElementById("b"+i).style.backgroundPositionY)
+      // console.log("mismatch at i=",i);
+      return;
+    }
+
+    cx+=100/(C-1);
+
+  }
+
+  won=true;
+  alert("CONGRATS YOU FINISHED THE PUZZLE !");
+  return;
+}
+
+      
+ function swapback(star,dir){
+    console.log("star=",star," dir=",dir);
+    let temp=document.getElementById("b"+star).style.backgroundPosition;
+    var p;
+    if(dir=="left" && star%C!=1){     
+        p=star-1; 
+        document.getElementById("b"+star).style.backgroundPosition=document.getElementById("b"+p).style.backgroundPosition;
+        document.getElementById("b"+p).style.backgroundPosition=temp;
+    }
+    else if(dir=="right" && star%C!=0){
+        p=star+1;
+        document.getElementById("b"+star).style.backgroundPosition=document.getElementById("b"+p).style.backgroundPosition;
+        document.getElementById("b"+p).style.backgroundPosition=temp;
+    }
+    else if(dir=="down" && star<=R*C-C){
+        p=star+C; 
+        document.getElementById("b"+star).style.backgroundPosition=document.getElementById("b"+p).style.backgroundPosition;
+        document.getElementById("b"+p).style.backgroundPosition=temp;
+    }
+    else if(dir=="up" && star>C){
+        p=star-C;
+        document.getElementById("b"+star).style.backgroundPosition=document.getElementById("b"+p).style.backgroundPosition;
+        document.getElementById("b"+p).style.backgroundPosition=temp;
+    }
+
+    if(gameover()){
+      alert("CONGRATULATIONS YOU FINISHED THE PUZZLE !");
+    }
+}
+
+
+
+function startTouch(e) {
+  ix = e.touches[0].clientX;
+  iy = e.touches[0].clientY;
+  console.log("x=",ix," y=",iy);
+
+};
+
+function moveTouch(e) {
+  if (ix === null) {
+    return;
+  }
+
+  if (iy === null) {
+    return;
+  }
+
+  var currentX = e.touches[0].clientX;
+  var currentY = e.touches[0].clientY;
+
+  var diffX = ix - currentX;
+  var diffY = iy - currentY;
+
+  if (Math.abs(diffX) > Math.abs(diffY)) {
+    // sliding horizontally
+    if (diffX > 0) {
+      // swiped left
+       swapback(start,"left");
+      console.log("swiped left");
+    } else {
+      // swiped right
+       swapback(start,"right");
+      console.log("swiped right");
+    }  
+  } else {
+    // sliding vertically
+    if (diffY > 0) {
+      // swiped up
+       swapback(start,"up");
+      console.log("swiped up");
+    } else {
+      // swiped down
+       swapback(start,"down");
+      console.log("swiped down");
+    }  
+  }
+
+  ix = null;
+  iy = null;
+
+  e.preventDefault();
+};
+
+
+
+        enterBtn.onclick=function(){
+          gotImage=true;
+             
+              R=R.value;
+              C=C.value;
+
+         
+
+          // CODE TO FIND DEVICE DIMENSIONS
+    
+
+    document.getElementById("imageContainer").style.width=(0.98*deviceWidth)+"px";
+    document.getElementById("imageContainer").style.height=(0.97*deviceHeight)+"px";
+
+    
+    
+    function fillImageInsideDiv(imageUrl, divId) {
+      var x = document.getElementById(divId);
+      x.style.backgroundImage = "url('" + imageUrl + "')";
+      x.style.backgroundSize = "cover";
+      x.style.backgroundPosition = "center";
+      x.style.backgroundRepeat = "no-repeat";
+    }
+
+    let link="https://picsum.photos/1920/1080";
+
+
+    fillImageInsideDiv(link,"imageContainer");
+
+
+            console.log(link);
+
+  console.log("final = "+link);
+
+
+          body.innerHTML=` <img src="`+link+`" alt="" placeholder="loading image.." width="`+n1+`px" height="`+n2+`px">`;
+
+          body.innerHTML+=`<div class="bag">`;
+
+            var count=1;
+
+            for(var i=1;i<=R;i++){
+              body.innerHTML+='<div display="flex" >';
+
+                for(var j=1;j<=C;j++){
+                    body.innerHTML+=`<button id="b`+count+`" class="btn"></button>`;
+                    count++;
+                }
+
+              body.innerHTML+='</div>';
+            }
+
+          body.innerHTML+=`</div>`;
+
+
+          // set width of all buttons
+          var buttons = document.querySelectorAll('button[id^="b"]');
+          buttons.forEach(function(button) {
+            button.style.width = (100/C) + '%';
+            //button.style.height = (100/R) + '%';
+          });
+          
+          w=Math.floor(n1/C),h=n2/R;
+          
+         
+          for(var i=1;i<=R*C;i++){
+            // document.getElementById("b"+i).style.width=(100/C)+"%";
+             document.getElementById("b"+i).style.height=h+"px";
+
+            document.getElementById("b"+i).style.backgroundImage="url("+link+")";
+            document.getElementById("b"+i).style.backgroundRepeat="no-repeat";
+            document.getElementById("b"+i).style.backgroundSize=n1+"px"+" "+n2+"px";
+
+            if(i%C==1 && i>1) {
+                curry+=100/(R-1);
+                currx=0;
+            }
+            document.getElementById("b"+i).style.backgroundPositionX=currx+"%";
+            document.getElementById("b"+i).style.backgroundPositionY=curry+"%";
+            currx+=100/(C-1);
+          }
+
+          for(var i=1;i<=R*C;i++){
+              backs.push(document.getElementById("b"+i).style.backgroundPosition);
+          }
+
+          
+          shuffleArray(backs);
+          
+
+          for (var i = 1; i <= R*C; i++) {
+              (function(index) {
+                document.getElementById("b"+index).ontouchstart=function(){  gameover(); if(won==false) start=index;};
+                document.getElementById("b"+index).addEventListener("touchstart", startTouch, false);
+                document.getElementById("b"+index).addEventListener("touchmove", moveTouch, false);
+
+              })(i);
+          }
+
+  
+
+        }
+
+
+
+            // Create a new image element
+
+     
+
+  </script>
+
+</body>
+</html>
